@@ -25,28 +25,25 @@ class VideoStream:
         self.cap.release()
 
 # Initialize
-detector = ObjectDetector("../models/yolov8n.pt")
+detector = ObjectDetector("../models/yolov8n.onnx")
 tracker = ObjectTracker()
 stream = VideoStream(1, width=640, height=480)
 
-time.sleep(1)  # Let camera warm up
-
+time.sleep(1)
 frame_count = 0
-process_every_n_frames = 2  # Skip every 1 frame
+process_every_n_frames = 2
 
 while True:
     ret, frame = stream.read()
     if not ret:
         break
 
-    # Skip frames to reduce load
     if frame_count % process_every_n_frames == 0:
         detections = detector.detect(frame)
         tracks = tracker.update(detections, frame)
         latest_tracks = tracks
     frame_count += 1
 
-    # Draw latest track results
     for track in latest_tracks:
         if not track.is_confirmed():
             continue
@@ -56,7 +53,7 @@ while True:
         cv2.putText(frame, f"ID: {track_id}", (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
-    cv2.imshow("Optimized Object Detection & Tracking", frame)
+    cv2.imshow("ONNX Object Detection & Tracking", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
